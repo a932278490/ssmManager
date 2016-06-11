@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.lq.ssm.admissions.dao.TrackDao">
+<resultMap type="track" id="track_map">
+<id property="recode_id" column="TRACK_RECORD_ID"/>
+<result property="recode_title" column="TRACK_RECORD_TITLE"/>
+<result property="recode_content" column="TRACK_RECORD_CONTENT"/>
+<result property="recode_time" column="TRACK_RECORD_TIME"/>
+<result property="recode_ntime" column="TRACK_RECORD_NEXT"/>
+<association property="student" column="STUDENT_ID" resultMap="student_map"></association>
+<association property="dictionory" column="ENROLLMENT" resultMap="dictionory_map"></association>
+</resultMap>
+<!-- 字典 -->
+<resultMap type="dictionory" id="dictionory_map">
+		<id property="id" column="data_id"/>
+		<result property="context" column="data_context"/>
+		<result property="type" column="data_type"/>
+		<result property="desc" column="data_desc"/>
+	</resultMap>
+<!-- 学生 -->
+<resultMap type="student" id="student_map">
+		<id property="id" column="student_id"/>
+		<result property="name" column="student_name"/>
+		<result property="sex" column="student_sex"/>
+		<result property="age" column="student_age"/>
+		<result property="phone" column="student_phone"/>
+		<result property="qq" column="student_qq"/>
+		<result property="email" column="student_email"/>
+		<result property="parentname" column="student_parents_name"/> 
+		<result property="parentphone" column="student_parents_phone"/>
+		<result property="idcard" column="student_idcard"/>
+		<result property="address" column="student_address"/>
+		<result property="birthday" column="student_birthday"/>
+		<result property="school" column="student_school"/>
+		<result property="province" column="student_pro"/>
+		<result property="city" column="student_pro_city"/>
+		<result property="ispay" column="student_ispay"/>
+		<result property="state" column="student_state"/>
+		<result property="marke" column="student_mark"/>
+		<result property="number" column="student_number"/>
+		<result property="password" column="student_password"/>
+		<result property="desc" column="student_desc"/>
+		<association property="staff" column="staff_id" resultMap="staff_map"></association>
+		<association property="classes" column="class_id" resultMap="classes_map"></association>
+	</resultMap>
+<resultMap type="staff" id="staff_map">
+		<id property="sid" column="staff_id"/>
+		<result property="name" column="staff_name"/>
+	</resultMap>
+	
+	<resultMap type="classes" id="classes_map">
+		<id property="id" column="class_id"/>
+		<result property="name" column="class_name"/>
+	</resultMap>
+<!-- 查询全部 -->
+<select id="findAll" resultMap="track_map">
+select * from TRACK_RECORD_INFO t left join student_info s
+on s.student_id=t.student_id left join data_dictionory d
+on  s.data_id=d.data_id left join staff_info o
+on s.staff_id=o.staff_id
+where s.student_mark !='2'
+</select>
+<!-- id获取 -->
+	<select id="getById" resultMap="track_map">
+	select * from TRACK_RECORD_INFO t left join student_info s
+on s.student_id=t.student_id left join data_dictionory d
+on  s.data_id=d.data_id left join staff_info o
+on s.staff_id=o.staff_id
+where track_record_id =#{id}
+        
+  </select>
+<!-- 添加 -->
+<insert id="save" parameterType="track">
+		<selectKey keyProperty="recode_id" resultType="int" order="BEFORE">
+			select track_seq.nextval from dual
+	</selectKey>
+		insert into track_record_info
+  (track_record_id, student_id, track_record_title, track_record_content, track_record_time,track_record_next)
+values
+  (#{recode_id},#{student.id}, #{recode_title}, #{recode_content}, #{recode_time},#{recode_ntime})
+	</insert>
+<!-- 修改 -->
+<update id="update" parameterType="track">
+		update track_record_info  set
+	    student_id =#{student.id},
+       track_record_title = #{recode_title},
+       track_record_content =#{recode_content},
+       track_record_time =#{recode_time},
+       enrollment =#{dictionory.id},
+       track_record_next =#{recode_ntime}
+       where track_record_id =#{id}
+		
+	</update>
+<!-- 删除 -->
+<delete id="delete">
+		delete from TRACK_RECORD_INFO where track_record_id =#{id}
+</delete>
+<!-- 姓名 -->
+	<select id="getByName" resultMap="track_map">
+		select * from TRACK_RECORD_INFO t left join student_info s
+       on s.data_id=t.enrollment left join data_dictionory d
+       on  s.data_id=d.data_id left join staff_info o
+        on s.staff_id=o.staff_id
+		where s.student_name like '%${name}%' 
+</select>
+<!-- 根据意向模糊查询 -->
+	<select id="getByEnrollment" resultMap="track_map">
+		select * from TRACK_RECORD_INFO t left join student_info s
+       on s.data_id=t.enrollment left join data_dictionory d
+       on  s.data_id=d.data_id left join staff_info o
+        on s.staff_id=o.staff_id
+		 where d.data_context like '%${Enrollment}%' 
+</select>
+</mapper>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.lq.ssm.admissions.dao.AuditionDao">
+	<resultMap type="audition" id="audition_map">
+		<id property="audition_id" column="audition_id" />
+		<result property="audition_course" column="audition_course" />
+		<result property="audition_desc" column="audition_desc" />
+		<result property="audition_time" column="audition_time" />
+		<result property="audition_address" column="audition_address" />
+		<association property="student" column="student_id"
+			resultMap="student_map"></association>
+	</resultMap>
+	<!-- 学生 -->
+	<resultMap type="student" id="student_map">
+		<id property="id" column="student_id" />
+		<result property="name" column="student_name" />
+		<result property="sex" column="student_sex" />
+		<result property="age" column="student_age" />
+		<result property="phone" column="student_phone" />
+		<result property="qq" column="student_qq" />
+		<result property="email" column="student_email" />
+		<result property="parentname" column="student_parents_name" />
+		<result property="parentphone" column="student_parents_phone" />
+		<result property="idcard" column="student_idcard" />
+		<result property="address" column="student_address" />
+		<result property="birthday" column="student_birthday" />
+		<result property="school" column="student_school" />
+		<result property="province" column="student_pro" />
+		<result property="city" column="student_pro_city" />
+		<result property="ispay" column="student_ispay" />
+		<result property="state" column="student_state" />
+		<result property="marke" column="student_mark" />
+		<result property="number" column="student_number" />
+		<result property="password" column="student_password" />
+		<result property="desc" column="student_desc" />
+		<association property="staff" column="staff_id" resultMap="staff_map"></association>
+		<association property="classes" column="class_id"
+			resultMap="classes_map"></association>
+	</resultMap>
+	<resultMap type="staff" id="staff_map">
+		<id property="sid" column="staff_id" />
+		<result property="name" column="staff_name" />
+	</resultMap>
+
+	<resultMap type="classes" id="classes_map">
+		<id property="id" column="class_id" />
+		<result property="name" column="class_name" />
+	</resultMap>
+	<!-- 查询全部 -->
+	<select id="findAll" resultMap="audition_map">
+		select * from audition_info a left join student_info s
+		on a.student_id=s.student_id
+		where s.student_mark!='2'
+</select>
+	<!-- id获取 -->
+	<select id="getById" resultMap="audition_map">
+		select a.*,s.* from audition_info a left join student_info s
+		on a.student_id=s.student_id
+		where audition_id=#{id}
+        
+  </select>
+	<!-- 添加 -->
+	<insert id="save" parameterType="audition">
+		<selectKey keyProperty="audition_id" resultType="int" order="BEFORE">
+			select audition_info_seq.nextval from dual
+	</selectKey>
+		insert into audition_info
+		(audition_id,audition_course,audition_desc,audition_time,audition_address,student_id)
+		values
+		(#{audition_id},#{audition_course},#{audition_desc},#{audition_time},#{audition_address},#{student.id})
+	</insert>
+	<!-- 修改 -->
+	<update id="update" parameterType="audition">
+		update audition_info
+        set audition_id = #{audition_id},
+		student_id = #{student.id},
+		audition_time = #{audition_time},
+		audition_address = #{audition_address},
+		audition_course = #{audition_course},
+		audition_desc = #{audition_desc}
+		where audition_id = #{audition_id}
+	</update>
+	<!-- 删除 -->
+	<delete id="delete">
+		delete from audition_info where audition_id=#{id}
+</delete>
+
+	<!-- 模糊查找根据姓名或科目 -->
+	<select id="getNC" resultMap="audition_map">
+		select * from audition_info a left join student_info s
+		on a.student_id=s.student_id
+		where s.student_name like '%${name}%'
+		and a.audition_course like '%${couse}%'
+</select>
+	<!-- 根据课程模糊查询 -->
+	<select id="getByCouse" resultMap="audition_map">
+		select * from audition_info a left join student_info s
+		on a.student_id=s.student_id
+		where a.audition_course like '%${couse}%'
+</select>
+	<!-- 姓名 -->
+	<select id="getByName" resultMap="audition_map">
+		select * from audition_info a left join student_info s
+		on a.student_id=s.student_id
+		where s.student_name like '%${name}%' 
+</select>
+</mapper>
